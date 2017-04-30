@@ -1,3 +1,5 @@
+// This header file is a basic physics engine for the game
+
 #ifndef PHYSICS_HPP_INCLUDED
 #define PHYSICS_HPP_INCLUDED
 
