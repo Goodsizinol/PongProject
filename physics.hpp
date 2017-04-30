@@ -8,6 +8,7 @@
 
 const float pi = 3.14159265;
 
+// Creates a structure for a game ball which is to be used in physics.hpp
 struct PHY_Ball{
     int ballSize;
     float speed;
@@ -17,6 +18,7 @@ struct PHY_Ball{
     bool moving_right;
 };
 
+// Creates a structure for a paddle which is to be used in physics.hpp
 struct PHY_Paddle{
     int WIDTH;
     int HEIGHT;
@@ -29,6 +31,11 @@ class physics{
         int WINDOW_WIDTH;
         int WINDOW_HEIGHT;
 
+        // When the ball collides with the paddle, this function will give the adjusted
+        // surface angle in order the make the balls path change based on the position
+        // on the paddle that it collided with it. If the ball collides with the upper
+        // half, the surface angle will be directed upward, and downward on the lower
+        // half with a max angle of (pi/8) given a vertical surface has an angle of 0
         float GetPaddleSurfaceAngle(PHY_Ball ball, PHY_Paddle paddle){
             float y = ball.y - paddle.y + ball.ballSize;
             float l = paddle.HEIGHT + ball.ballSize;
@@ -38,6 +45,8 @@ class physics{
             return angle;
         }
 
+        // Simply checks if the ball is colliding with the top or bottom wall and
+        // changes the direction of the ball with if it does collide
         void CheckWallCollision(PHY_Ball* pBall, bool* flag){
             if(pBall->y<0||pBall->y+pBall->ballSize>WINDOW_HEIGHT){
                 GetNewAngle(&pBall->angle, pi/2);
@@ -46,13 +55,23 @@ class physics{
             return;
         }
 
+        // Checks if the ball is colliding with either paddle. The ball can only collide
+        // with the paddle in the direction of its movement (left or right)
         void CheckPaddleCollision(PHY_Paddle Lpaddle, PHY_Paddle Rpaddle, PHY_Ball* ball){
+
             // Checks if the ball is inside of the y range of either of the paddles
             if((ball->y + ball->ballSize >= Lpaddle.y && ball->y <= Lpaddle.y + Lpaddle.HEIGHT) || (ball->y + ball->ballSize >= Rpaddle.y && ball->y <= Rpaddle.y + Rpaddle.HEIGHT)){
 
+                // Based on the ball's direction of movement, this code will check if the x-cords
+                // are within the range of the paddle going in that direction. If it is, it'll call
+                // the GetPaddleSurfaceAngle function and change the direction of the ball's movement
+                // based on the point of collision
                 if(ball->moving_right){
                     if(ball->x + ball->ballSize >= Rpaddle.x && ball->x + ball->ballSize <= Rpaddle.x + Rpaddle.WIDTH){
                         GetNewAngle(&ball->angle, -GetPaddleSurfaceAngle(*ball, Rpaddle));
+
+                        // Corrects the direction of movement if it is too vertical (making it bounce off
+                        // the top and bottom without really moving much) or in the wrong direction
                         if(ball->angle < (float)(5*pi)/8){
                             ball->angle = (5*pi)/8;
                         } if(ball->angle > (float)(11*pi)/8){
@@ -63,6 +82,9 @@ class physics{
                 } else{
                     if(ball->x >= Lpaddle.x && ball->x < Lpaddle.x + Lpaddle.WIDTH){
                         GetNewAngle(&ball->angle, GetPaddleSurfaceAngle(*ball, Lpaddle));
+
+                        // Corrects the direction of movement if it is too vertical (making it bounce off
+                        // the top and bottom without really moving much) or in the wrong direction
                         ball->moving_right = true;
                         if(ball->angle > (float)(3*pi)/8 && ball->angle < (float)(13*pi/8)){
                             if(ball->angle > pi){
@@ -80,6 +102,9 @@ class physics{
             return;
         }
 
+        // Creates a new angle for an moving object (most likely a ball) based on the current
+        // direction of movement of the object and the surface angle of the surface it is
+        // colliding with
         void GetNewAngle(float* angle, float surface_angle){
             *angle = pi +(2 * surface_angle) - *angle;
             if(*angle > 2*pi){
@@ -94,6 +119,7 @@ class physics{
 
 
     public:
+        // An easier way of creating a PHY_Ball structure
         PHY_Ball SetBallProperties(int Size, float speed, float angle, float x, float y, bool moving_right){
             PHY_Ball pBall = {Size, speed, angle, x, y, moving_right};
             return pBall;
@@ -117,6 +143,7 @@ class physics{
             return;
         }
 
+        // Takes the window size and saves it for use in different functions
         void SetWindow(int w, int h){
             WINDOW_WIDTH = w;
             WINDOW_HEIGHT = h;
