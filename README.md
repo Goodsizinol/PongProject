@@ -13,3 +13,4 @@ ToDo List:
 * Modify the "object" class so that objects can be at an angle
 * LAN multiplayer (maybe someday)
   * Requires the physics redesign
+  * Then maybe even online multiplayer (but I'm not getting my hopes up
