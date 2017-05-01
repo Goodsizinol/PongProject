@@ -28,6 +28,7 @@ struct PHY_Paddle{
     float y;
 };
 
+// The main structure of physics.hpp. It contains basic physics for the ball bouncing around and the paddles moving
 class physics{
     private:
         int WINDOW_WIDTH;
@@ -121,7 +122,7 @@ class physics{
 
 
     public:
-        // An easier way of creating a PHY_Ball structure
+        // An easier way of creating a PHY_Ball structure by returning the structure
         PHY_Ball SetBallProperties(int Size, float speed, float angle, float x, float y, bool moving_right){
             PHY_Ball pBall = {Size, speed, angle, x, y, moving_right};
             return pBall;
@@ -150,7 +151,8 @@ class physics{
             WINDOW_WIDTH = w;
             WINDOW_HEIGHT = h;
         }
-
+        
+        // Moving the paddle up or down a fixed amount depending on "moving_up"
         void movePaddle(PHY_Paddle* paddle, bool moving_up){
             if(moving_up){
                 paddle->y -= float(WINDOW_HEIGHT/60);
@@ -166,7 +168,8 @@ class physics{
 
             return;
         }
-
+        
+        // Sets the properties of a PHY_Paddle which it will return
         PHY_Paddle CreatePaddle(int w, int h, float x, float y){
             PHY_Paddle paddle = {w, h, x, y};
 
