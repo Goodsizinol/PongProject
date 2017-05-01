@@ -10,23 +10,29 @@ bool init();
 TTF_Font* gameFont = NULL;
 SDL_Texture* fontTexture = NULL;
 
+// Ball size in pixels
 int ball_size;
 
+// Used for the which selction the player is currently on in the menus
 enum mainMenuSelction{
     START_GAME,
     OPTIONS,
     EXIT
 };
 
+// Game window settings
 int WINDOW_WIDTH = 1280;
 int WINDOW_HEIGHT = 720;
 
+// The window and the redenderer for the game
 SDL_Window* window;
 SDL_Renderer* renderer;
 
+// Paddle dimentions in pixels
 int paddle_width;
 int paddle_height;
 
+// Bools for what the current inputs are
 struct controls{
     bool P1_up;
     bool P1_down;
@@ -35,6 +41,7 @@ struct controls{
     bool restart;
 }controlsBools;
 
+// This function initalizes SDL and SDL_ttf and creates the game window and renderer
 bool init(){
     bool error = false;
 
@@ -66,6 +73,7 @@ bool init(){
     return error;
 }
 
+// Loads the game font
 bool loadFont(int fontSize){
     bool error = false;
     gameFont = TTF_OpenFont("Pixeled.ttf", 20);
@@ -73,6 +81,7 @@ bool loadFont(int fontSize){
     return error;
 }
 
+// Shuts down SDL and all of it's subsystems as well as freeing all surfaces and windows
 void close(){
     TTF_CloseFont(gameFont);
     gameFont = NULL;
@@ -88,6 +97,8 @@ void close(){
     return;
 }
 
+// Class for any rectanglar object
+// ToDo - Modify so objects can be applied at an angle
 class object{
 public:
     SDL_Rect r;
@@ -96,6 +107,7 @@ public:
     float true_x;
     float true_y;
 
+    // Changes the position of the object
     void offset(float x, float y){
         r.x = x;
         r.y = y;
@@ -104,7 +116,8 @@ public:
 
         return;
     }
-
+    
+    // Lets you adjust the color
     void color(int r, int b, int g){
         objectColor.r = r;
         objectColor.b = b;
@@ -112,17 +125,20 @@ public:
 
         return;
     }
-
+    
+    // Lets you adjust the dimentions of the object
     void shape(int w, int h){
         r.w = w;
         r.h = h;
     }
-
+    
+    // Applies the shape using the SLD renderer
     void applyShape(){
         SDL_SetRenderDrawColor(renderer, objectColor.r, objectColor.b, objectColor.g, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer, &r);
     }
-
+    
+    // Prints out certain values for debugging
     void debug(){
         printf("true x = %d  ", r.x);
         printf("true y = %d  ", r.y);
@@ -132,12 +148,15 @@ public:
     }
 };
 
+// Contains all game logic functions and structures
 class gameStuff{
     public:
+    // Checks the state of all of the keys on the keyboard and if they are relevent, adjust the bool according to their state
+    // ToDo - Add custom key bindings
         void keyStateHandler(){
             const Uint8* state = SDL_GetKeyboardState(NULL);
 
-            // P1 key states
+            // P1 key states (uses W and S)
             if(state[SDL_SCANCODE_W]){
                 if(!state[SDL_SCANCODE_S]){
                     controlsBools.P1_up = true;
@@ -153,7 +172,7 @@ class gameStuff{
                 controlsBools.P1_down = false;
             }
 
-            // P2 key states
+            // P2 key states (Uses the UP and DOWN arrow keys
             if(state[SDL_SCANCODE_UP]){
                 if(!state[SDL_SCANCODE_DOWN]){
                     controlsBools.P2_up = true;
@@ -201,6 +220,7 @@ class gameStuff{
         }
 }game;
 
+// Converts a PHY_Ball structure into an object structure
 void setObjectToPHY_Ball(PHY_Ball gBall, object* oBall){
     oBall->offset(gBall.x, gBall.y);
     oBall->shape(gBall.ballSize, gBall.ballSize);
@@ -208,6 +228,7 @@ void setObjectToPHY_Ball(PHY_Ball gBall, object* oBall){
     return;
 }
 
+// Converts a PHY_Paddle structure into an object structure
 void setObjectToPHY_Paddle(PHY_Paddle paddle, object* oPaddle){
     oPaddle->offset(paddle.x, paddle.y);
     oPaddle->shape(paddle.WIDTH, paddle.HEIGHT);
@@ -252,7 +273,7 @@ int main(int argc, char* argv[]){
         left_paddle.color(255, 255, 255);
         PHY_Paddle leftPHY_Paddle = PHY.CreatePaddle(paddle_width, paddle_height, paddle_width*3, (WINDOW_HEIGHT/2) - (paddle_height/2));
         setObjectToPHY_Paddle(leftPHY_Paddle, &left_paddle);
-
+        
         object right_paddle;
         right_paddle.color(255, 255, 255);
         PHY_Paddle rightPHY_Paddle = PHY.CreatePaddle(paddle_width, paddle_height, WINDOW_WIDTH - (paddle_width*3) - paddle_width, (WINDOW_HEIGHT/2) - (paddle_height/2));
@@ -270,7 +291,8 @@ int main(int argc, char* argv[]){
                     game.keyStateHandler();
                 }
             }
-
+            
+            // Applies all of the used shapes
             pong_ball.applyShape();
             left_paddle.applyShape();
             right_paddle.applyShape();
